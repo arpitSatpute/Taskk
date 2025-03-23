@@ -7,6 +7,7 @@ import com.arpit.taskk.entity.enums.Role;
 import com.arpit.taskk.exceptions.ResourceNotFoundException;
 import com.arpit.taskk.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,5 +30,12 @@ public class UserService implements UserDetailsService {
 
     public User loadUserByRole(Role role) {
         return userRepository.findByRoles(role);
+    }
+
+    public boolean isOwner(Long userId) {
+        User authenticatedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        return authenticatedUser.getEmail().equals(user.getEmail());
     }
 }

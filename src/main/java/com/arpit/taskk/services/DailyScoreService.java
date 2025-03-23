@@ -1,5 +1,6 @@
 package com.arpit.taskk.services;
 
+import com.arpit.taskk.dto.DailyScoreDTO;
 import com.arpit.taskk.entity.DailyScore;
 import com.arpit.taskk.entity.User;
 import com.arpit.taskk.entity.enums.Status;
@@ -9,6 +10,7 @@ import com.arpit.taskk.repository.TaskRepository;
 import com.arpit.taskk.repository.UserRepository;
 import com.arpit.taskk.strategies.DailyScoreCalculateStrategy;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,14 +25,15 @@ public class DailyScoreService {
     private final DailyScoreCalculateStrategy scoreCalculate;
     private final DailyScoreRepository dailyScoreRepository;
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
 
-    public BigDecimal getDailyScore(Long userId) {
+    public DailyScoreDTO getDailyScore(Long userId) {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        BigDecimal completedTask = taskRepository.countByTaskStatusAndUserId(Status.COMPLETED, userId);
-        BigDecimal ongoingTask = taskRepository.countByTaskStatusAndUserId(Status.ONGOING, userId);
+        BigDecimal completedTask = taskRepository.countByStatusAndUserId(Status.COMPLETED, userId);
+        BigDecimal ongoingTask = taskRepository.countByStatusAndUserId(Status.ONGOING, userId);
 
         BigDecimal score =  scoreCalculate.calculateScore(completedTask, ongoingTask);
 
@@ -43,7 +46,7 @@ public class DailyScoreService {
         }
         dailyScoreRepository.save(dailyScore);
 
-       return score;
+       return modelMapper.map(dailyScore, DailyScoreDTO.class);
     }
 
     public DailyScore createDailyScore(User user) {

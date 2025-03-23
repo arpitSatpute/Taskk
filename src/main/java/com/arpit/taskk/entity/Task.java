@@ -18,7 +18,9 @@ public class Task {
     private Long taskId;
     private String taskName;
     private String taskDescription;
-    private Status taskStatus;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

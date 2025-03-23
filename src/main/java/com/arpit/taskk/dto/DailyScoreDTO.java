@@ -2,6 +2,8 @@ package com.arpit.taskk.dto;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Data
 @Getter
 @Setter
@@ -10,5 +12,5 @@ import lombok.*;
 public class DailyScoreDTO {
 
     private Long id;
-    private int currScore;
+    private BigDecimal currScore;
 }

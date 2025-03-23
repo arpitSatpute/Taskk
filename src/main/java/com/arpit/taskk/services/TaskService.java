@@ -9,6 +9,7 @@ import com.arpit.taskk.repository.TaskRepository;
 import com.arpit.taskk.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 public class TaskService {
 
     private final TaskRepository taskRepository;
-    private final UserRepository usersRepository;
+    private final UserRepository userRepository;
     private final ModelMapper modelMapper;
 
     public void deleteTask(Long id) {
@@ -27,7 +28,7 @@ public class TaskService {
     }
 
     public List<TaskDTO> getTask(Long userId) {
-        User user = usersRepository.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+        User user = userRepository.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User not found"));
         List<Task> taskList = taskRepository.findByUserId(user.getId());
         return taskList.stream()
                 .map(task -> modelMapper.map(task, TaskDTO.class))
@@ -35,8 +36,8 @@ public class TaskService {
     }
 
     public List<TaskDTO> getTaskByStatus(Status status, Long userId) {
-        User user = usersRepository.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User not found"));
-        List<Task> list = taskRepository.findByTaskStatusAndUserId(status, userId);
+        User user = userRepository.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+        List<Task> list = taskRepository.findByStatusAndUserId(status, userId);
         return list.stream()
                 .map(task -> modelMapper.map(task, TaskDTO.class))
                 .collect(Collectors.toList());
@@ -44,7 +45,13 @@ public class TaskService {
 
 
     public TaskDTO addTask(TaskDTO taskDTO) {
-        Task task = modelMapper.map(taskDTO, Task.class);
+        Task task = Task.builder()
+                .taskName(taskDTO.getTaskName())
+                .taskDescription(taskDTO.getTaskDescription())
+                .status(Status.ONGOING)
+                .user(userRepository.findById(taskDTO.getUserId()).orElseThrow(()-> new ResourceNotFoundException("User not found")))
+                .build();
+
         Task savedTask = taskRepository.save(task);
         return modelMapper.map(savedTask, TaskDTO.class);
     }
@@ -54,8 +61,16 @@ public class TaskService {
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskDTO.getTaskId()));
         task.setTaskName(taskDTO.getTaskName());
         task.setTaskDescription(taskDTO.getTaskDescription());
-        task.setTaskStatus(taskDTO.getTaskStatus());
+        task.setStatus(taskDTO.getTaskStatus());
         Task updatedTask = taskRepository.save(task);
         return modelMapper.map(updatedTask, TaskDTO.class);
     }
+
+    public boolean isOwnerOfTask(Long id) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Task task = taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
+        return user.getEmail().equals(task.getUser().getEmail());
+    }
+
+
 }

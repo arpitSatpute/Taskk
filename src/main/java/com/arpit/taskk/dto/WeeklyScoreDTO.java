@@ -3,6 +3,8 @@ package com.arpit.taskk.dto;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Data
 @Getter
 @Setter
@@ -11,12 +13,12 @@ import lombok.*;
 public class WeeklyScoreDTO {
 
     private Long id;
-    private int day1;
-    private int day2;
-    private int day3;
-    private int day4;
-    private int day5;
-    private int day6;
-    private int day7;
+    private BigDecimal day1;
+    private BigDecimal day2;
+    private BigDecimal day3;
+    private BigDecimal day4;
+    private BigDecimal day5;
+    private BigDecimal day6;
+    private BigDecimal day7;
 
 }
