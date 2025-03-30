@@ -16,12 +16,10 @@ import org.springframework.web.bind.annotation.*;
 public class WeeklyScoreController {
 
     private final WeeklyScoreService weeklyScoreService;
-    private final ScheduledService scheduledService;
 
-    @GetMapping("/getWeeklyScore/{userId}")
-    @PreAuthorize("@userService.isOwner(#userId)")
-    public ResponseEntity<WeeklyScoreDTO> getWeeklyScore(@PathVariable Long userId) {
-        return ResponseEntity.ok(weeklyScoreService.getWeeklyScore(userId));
+    @GetMapping("/getWeeklyScore")
+    public ResponseEntity<WeeklyScoreDTO> getWeeklyScore() {
+        return ResponseEntity.ok(weeklyScoreService.getWeeklyScore());
     }
 
 

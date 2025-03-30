@@ -26,10 +26,11 @@ public class DailyScoreService {
     private final DailyScoreRepository dailyScoreRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final UserService userService;
 
 
-    public DailyScoreDTO getDailyScore(Long userId) {
-
+    public DailyScoreDTO getDailyScore() {
+        Long userId = userService.getUserId();
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         BigDecimal completedTask = taskRepository.countByStatusAndUserId(Status.COMPLETED, userId);

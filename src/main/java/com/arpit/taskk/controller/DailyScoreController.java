@@ -2,6 +2,7 @@ package com.arpit.taskk.controller;
 
 import com.arpit.taskk.dto.DailyScoreDTO;
 import com.arpit.taskk.services.DailyScoreService;
+import com.arpit.taskk.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +20,14 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class DailyScoreController {
 
+    private final UserService userService;
     private final DailyScoreService dailyScoreService;
 
 
-    @GetMapping(path = "/getDailyScore/{userId}")
-    @PreAuthorize("@userService.isOwner(#userId)")
-    public ResponseEntity<DailyScoreDTO> getDailyScore(@PathVariable Long userId) {
-        return ResponseEntity.ok(dailyScoreService.getDailyScore(userId));
+    @GetMapping(path = "/getDailyScore")
+    public ResponseEntity<DailyScoreDTO> getDailyScore() {
+
+        return ResponseEntity.ok(dailyScoreService.getDailyScore());
     }
 
 }

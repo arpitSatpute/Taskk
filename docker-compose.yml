@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: taskk-db
+    environment:
+      - POSTGRES_DB=taskk
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=0000
+    networks:
+      - taskk-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+
+  backend-service:
+    build: .
+    image: arpits15/taskk-backend
+    container_name: taskk-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_APPLICATION_NAME=Taskk
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/taskk
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=0000
+      - SPRING_JPA_HIBERNATE_DDL-AUTO=update
+      - SPRING_JPA_SHOW-SQL=true
+      - JWT_SECRETKEY=ofigicjkadgyegfouiasdgf8wtf9asdgwetfp9ewfgidgsugwp7eft87egdpiw9e7ftpgousyfgwe97fte7g8FTWEP9FGLI8FT7Fgol7ge
+
+    networks:
+      - taskk-network
+    depends_on:
+      - postgres
+
+networks:
+  taskk-network:
+
+volumes:
+  postgres_data:

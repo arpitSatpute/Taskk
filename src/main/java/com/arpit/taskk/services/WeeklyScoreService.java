@@ -22,9 +22,11 @@ public class WeeklyScoreService {
     private final WeeklyScoreRepository weeklyScoreRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final UserService userService;
 
 
-    public WeeklyScoreDTO getWeeklyScore(Long userId) {
+    public WeeklyScoreDTO getWeeklyScore() {
+        Long userId = userService.getUserId();
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         WeeklyScore weeklyScore = weeklyScoreRepository.findByUserId(user.getId());
         if (weeklyScore == null) {

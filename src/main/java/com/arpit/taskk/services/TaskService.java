@@ -12,6 +12,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +24,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final UserService userService;
 
     public void deleteTask(Long id) {
         taskRepository.deleteById(id);
@@ -44,24 +47,27 @@ public class TaskService {
     }
 
 
-    public TaskDTO addTask(TaskDTO taskDTO) {
+    public TaskDTO addTask(TaskDTO taskDTO, Long userId) {
         Task task = Task.builder()
                 .taskName(taskDTO.getTaskName())
                 .taskDescription(taskDTO.getTaskDescription())
                 .status(Status.ONGOING)
-                .user(userRepository.findById(taskDTO.getUserId()).orElseThrow(()-> new ResourceNotFoundException("User not found")))
+                .user(userRepository.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User not found")))
                 .build();
 
         Task savedTask = taskRepository.save(task);
         return modelMapper.map(savedTask, TaskDTO.class);
     }
 
-    public TaskDTO updateTask(TaskDTO taskDTO) {
-        Task task = taskRepository.findById(taskDTO.getTaskId())
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskDTO.getTaskId()));
-        task.setTaskName(taskDTO.getTaskName());
-        task.setTaskDescription(taskDTO.getTaskDescription());
-        task.setStatus(taskDTO.getTaskStatus());
+    public TaskDTO updateTask(Long taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
+
+        if(task.getStatus() == Status.PENDING) {
+            deleteTask(taskId);
+            return null;
+        }
+        task.setStatus(Status.COMPLETED);
         Task updatedTask = taskRepository.save(task);
         return modelMapper.map(updatedTask, TaskDTO.class);
     }
@@ -71,6 +77,7 @@ public class TaskService {
         Task task = taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
         return user.getEmail().equals(task.getUser().getEmail());
     }
+
 
 
 }

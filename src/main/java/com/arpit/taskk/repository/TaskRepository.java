@@ -17,7 +17,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     BigDecimal countByStatusAndUserId(Status status, Long userId);
 
-
     void deleteAllByStatus(Status status);
 
     List<Task> findAllByStatus(Status status);

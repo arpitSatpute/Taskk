@@ -119,6 +119,7 @@
                 </configuration>
             </plugin>
         </plugins>
+        <finalName>taskk</finalName>
     </build>
 
 </project>
